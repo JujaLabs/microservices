@@ -1,21 +1,21 @@
 /**
  * Copyright (c) 2016, juja.com.ua
  * All rights reserved.
- *
+ * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p/>
  * * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- *
+ * <p/>
  * * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- *
+ * <p/>
  * * Neither the name of microservices nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- *
+ * <p/>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,47 +28,78 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 package juja.microservices.gamification.model.repository;
 
-import java.util.List;
 import juja.microservices.gamification.model.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Repository;
 
 /**
- * User custom repository implementation.
+ * User repository test.
  * @author Sergii Lisnychyi (ljore@ukr.net)
  * @version $Id$
  * @since 1.0
  */
-@Repository
-public class UserRepositoryImpl implements UserRepositoryCustom {
+public class UserRepositoryImplTest {
 
     /**
-     * MongoTemplate.
+     * User repository.
      */
-    @Autowired
-    private transient MongoTemplate template;
+    @InjectMocks
+    private UserRepositoryImpl repository;
 
-    @Override
-    public final String createUser(final String username) {
-        final User user = new User(username);
-        this.template.save(user);
-        return user.getUsername();
+    /**
+     * Mongo templ.
+     */
+    @Mock
+    private MongoTemplate templ;
+
+    /**
+     * Init mocks.
+     */
+    @Before
+    public final void init() {
+        MockitoAnnotations.initMocks(this);
     }
 
-    @Override
-    public final User getUser(final String uuid) {
-        final Query query = Query.query(Criteria.where("uuid").is(uuid));
-        return this.template.findOne(query, User.class);
+    /**
+     * Create user test.
+     * @throws Exception if there is an issue.
+     */
+    @Test
+    public final void createUser() throws Exception {
+        final String name = "name";
+        final User user = new User(name);
+        final String result = this.repository.createUser(name);
+        Assert.assertEquals(user.getUsername(), result);
     }
 
-    @Override
-    public final List<User> getUsers() {
-        return this.template.findAll(User.class);
+    /**
+     * Get user verify.
+     */
+    @Test
+    public final void getUserVerify() {
+        final String uuid = "uuid";
+        final Query query = Query.query(Criteria.where(uuid).is(uuid));
+        this.repository.getUser(uuid);
+        Mockito.verify(this.templ, Mockito.times(1)).findOne(query, User.class);
     }
+
+    /**
+     * Get users verify.
+     */
+    @Test
+    public final void getUsersVerify() {
+        this.repository.getUsers();
+        Mockito.verify(this.templ, Mockito.times(1)).findAll(User.class);
+    }
+
 }

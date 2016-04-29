@@ -56,7 +56,7 @@ public class User {
      */
     private String uuid;
     /**
-     * USername field.
+     * Username field.
      */
     private String username;
 
